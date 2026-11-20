@@ -1,0 +1,46 @@
+=== 1. LLVM IR (middle end, after -O3) ===
+define i64 @demo(ptr nocapture noundef readonly %0, ptr nocapture noundef readonly %1, i64 noundef %2, i64 noundef %3) local_unnamed_addr #0 {
+  %5 = load i64, ptr %0, align 8, !tbaa !6
+  %6 = mul nsw i64 %3, %2
+  %7 = getelementptr inbounds i8, ptr %1, i64 24
+  %8 = load i64, ptr %7, align 8, !tbaa !6
+  %9 = getelementptr inbounds i8, ptr %0, i64 8
+  %10 = load i64, ptr %9, align 8, !tbaa !6
+  %11 = add i64 %6, 7
+  %12 = add i64 %11, %5
+  %13 = add i64 %12, %8
+  %14 = add i64 %13, %10
+  ret i64 %14
+}
+
+=== 2. AArch64, clustering OFF, pairing OFF ===
+_demo:                                  ; @demo
+	ldr	x8, [x0]
+	ldr	x9, [x1, #24]
+	ldr	x10, [x0, #8]
+	madd	x8, x3, x2, x8
+	add	x9, x9, x10
+	add	x8, x8, x9
+	add	x0, x8, #7
+	ret
+
+=== 3. AArch64, clustering ON (DAG mutation), pairing OFF ===
+_demo:                                  ; @demo
+	ldr	x8, [x1, #24]
+	ldr	x9, [x0]
+	ldr	x10, [x0, #8]
+	madd	x9, x3, x2, x9
+	add	x8, x8, x10
+	add	x8, x9, x8
+	add	x0, x8, #7
+	ret
+
+=== 4. AArch64 default: clustering ON + load-pair formation (ldp) ===
+_demo:                                  ; @demo
+	ldr	x8, [x1, #24]
+	ldp	x9, x10, [x0]
+	madd	x9, x3, x2, x9
+	add	x8, x8, x10
+	add	x8, x9, x8
+	add	x0, x8, #7
+	ret
