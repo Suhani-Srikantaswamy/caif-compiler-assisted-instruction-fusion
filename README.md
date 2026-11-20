@@ -20,7 +20,8 @@ validator (a static commutation check plus interpreter-based differential testin
 Requirements: Python 3.11+ (tested with 3.14), Node.js 18+ (tested with 18.20), npm.
 
 ```bash
-cd caif-project
+git clone https://github.com/Suhani-Srikantaswamy/caif-compiler-assisted-instruction-fusion.git
+cd caif-compiler-assisted-instruction-fusion
 
 # 1. Backend
 cd backend
@@ -29,7 +30,7 @@ python3 -m venv .venv
 .venv/bin/uvicorn main:app --port 8000          # leave running  (API docs: http://127.0.0.1:8000/docs)
 
 # 2. Frontend (new terminal)
-cd caif-project/frontend
+cd ../frontend
 npm install
 npm run dev                                     # open http://localhost:5173
 ```
@@ -47,9 +48,10 @@ with one of the commands above.
 ### Tests
 
 ```bash
-cd backend  && .venv/bin/python -m pytest       # 150 tests (incl. adversarial audit tests)
-cd frontend && npm test                         # 17 tests
-cd frontend && npm run typecheck                # TypeScript
+cd backend  && .venv/bin/python -m pytest       # backend tests
+cd ../frontend && npm test                      # frontend tests
+npm run typecheck                               # TypeScript
+npm run build                                   # production build
 ```
 
 ### Experiments
