@@ -101,7 +101,7 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
   }, [source, config])
 
   const run = useCallback(async () => {
-    setBusy(true); setMessage(null)
+    setBusy(true); setMessage(null); setStale(true)
     try {
       const r = await api.optimize(source, config)
       setResult(r); setErrors([]); setStale(false)
@@ -110,11 +110,11 @@ export function AppStateProvider({ children }: { children: ReactNode }) {
       setSelectedPair(first ? pairKey(first.head, first.tail) : null)
       setMessage(`CAIF finished: ${r.status.replace(/_/g, ' ').toLowerCase()}.`)
       return true
-    } catch (e) { handle(e); return false } finally { setBusy(false) }
+    } catch (e) { setResult(null); setParsed(null); setSelectedPair(null); handle(e); return false } finally { setBusy(false) }
   }, [source, config])
 
   const clear = useCallback(() => {
-    setSourceRaw(''); setParsed(null); setResult(null); setErrors([]); setMessage(null); setSampleId(null); setSelectedPair(null)
+    setSourceRaw(''); setParsed(null); setResult(null); setErrors([]); setMessage(null); setSampleId(null); setSelectedPair(null); setStale(false)
   }, [])
 
   const value = useMemo<AppState>(() => ({
